@@ -1,3 +1,4 @@
+from email_storage import add_email_timestamp
 
 def initialize_email_history(st):
 
@@ -45,9 +46,9 @@ def display_email_form(st):
                 "body": email_body.strip()
             }
 
-            st.session_state["email_history"].append(
-                email_data
-            )
+            email_data = add_email_timestamp(email_data)
+
+            st.session_state["email_history"].append(email_data)
 
             st.success("Email submitted successfully!")
 

@@ -1,5 +1,8 @@
 import streamlit as st
 from email_categorizer import categorize_email
+from email_storage import save_email_history, load_email_history
+from email_report import generate_email_report
+from dashboard import show_email_dashboard
 
 from config import APP_TITLE
 from email_interface import (
@@ -20,7 +23,8 @@ st.title("📧 AI Email Assistant")
 st.write("Your intelligent assistant for understanding and responding to emails.")
 
 # Initialize email history
-initialize_email_history(st)
+if "email_history" not in st.session_state:
+    st.session_state["email_history"] = load_email_history()
 
 st.divider()
 
@@ -167,3 +171,43 @@ if st.session_state.get("email_history"):
                 st.write(email["draft_reply"])
 else:
     st.info("No emails submitted yet.")
+
+# SAVE EMAIL HISTORY
+try:
+    save_email_history(st.session_state["email_history"])
+except Exception as error:
+    st.error(f"Could not save email history: {error}")
+
+# EXCEL EMAIL ANALYSIS REPORT
+
+st.divider()
+
+st.header("📊 Download Email Analysis Report")
+
+email_history = st.session_state.get("email_history", [])
+
+if email_history:
+
+    try:
+        excel_report = generate_email_report(email_history)
+
+        st.download_button(
+            label="📥 Download Excel Report",
+            data=excel_report,
+            file_name="email_analysis_report.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
+    except Exception as error:
+        st.error(f"Excel report generation failed: {error}")
+
+else:
+    st.info("Submit at least one email to generate an Excel report.")
+
+# EMAIL ANALYTICS DASHBOARD
+
+st.divider()
+
+show_email_dashboard(
+    st.session_state.get("email_history", [])
+)

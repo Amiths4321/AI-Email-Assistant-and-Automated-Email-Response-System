@@ -1,0 +1,6 @@
+
+streamlit
+ollama
+pandas
+openpyxl
+python-dotenv
